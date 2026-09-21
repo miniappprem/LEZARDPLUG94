@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>LÉZARD PLUG 94</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- SDK Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCG88dptpffJSZQdj71jxvNQWDxtLzBCUM",
+    authDomain: "lezardplug94.firebaseapp.com",
+    projectId: "lezardplug94",
+    storageBucket: "lezardplug94.firebasestorage.app",
+    messagingSenderId: "447085618620",
+    appId: "1:447085618620:web:31ada187792e75f40ff7b9",
+    measurementId: "G-0T02Q7CWNJ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window.db = db;
+  window.firebaseCollections = { collection, getDocs, setDoc, doc, deleteDoc };
+</script>
+
+<style>
+:root{--bg:#05070b;--glass:rgba(255,255,255,0.06);--line:rgba(156,53,255,0.25);--text:#f7f9ff;--muted:#9ba7b8;--cyan:#10eaff;--violet:#9c35ff;--pink:#ff36d7;--green:#52ff83}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:radial-gradient(circle at 15% 5%,rgba(0,234,255,0.12),transparent 28%),radial-gradient(circle at 85% 15%,rgba(156,53,255,0.2),transparent 30%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;overscroll-behavior:none}
+button,input,textarea{font:inherit;color:inherit;outline:none}
+button{cursor:pointer;border:0}
+.app{max-width:800px;margin:auto;padding:14px 14px 110px}
+
+/* Notifications */
+#toasts{position:fixed;top:15px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:linear-gradient(145deg,rgba(255,255,255,0.1),rgba(255,255,255,0.03));border:1px solid var(--violet);box-shadow:0 10px 30px rgba(156,53,255,0.3);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:12px 20px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;transform:translateY(-20px);transition:0.3s cubic-bezier(0.175,0.885,0.32,1.275);display:flex;align-items:center;gap:8px}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* Header */
+.glass{background:linear-gradient(145deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02));border:1px solid var(--line);box-shadow:inset 0 1px rgba(255,255,255,0.1),0 15px 40px rgba(156,53,255,0.15);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px)}
+.top{position:sticky;top:10px;z-index:20;height:62px;border-radius:22px;padding:8px 10px;display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{width:45px;height:45px;object-fit:cover;border-radius:14px;border:1px solid var(--violet)}
+.brand b{font-size:14px;letter-spacing:0.5px;text-transform:uppercase}
+.brand small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.spacer{flex:1}
+.ico{width:43px;height:43px;border-radius:15px;background:rgba(255,255,255,0.05);border:1px solid var(--line);display:grid;place-items:center;color:var(--text);transition:0.2s}
+.ico:active{transform:scale(0.9)}
+.badge{position:absolute;top:-3px;right:-3px;min-width:19px;height:19px;border-radius:50%;display:grid;place-items:center;background:var(--pink);font-size:9px;font-weight:900;color:#fff}
+
+/* Pages */
+.page{display:none;animation:in .35s ease}
+.page.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Accueil */
+.home-container{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:75vh;gap:40px;text-align:center}
+.hero-banner{width:100%;max-width:320px;aspect-ratio:1/1;border-radius:30px;overflow:hidden;position:relative;border:1px solid var(--violet);box-shadow:0 20px 50px rgba(156,53,255,0.25)}
+.hero-banner img{width:100%;height:100%;object-fit:cover;animation:breathe 8s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.cta-big{font-size:16px;padding:18px 40px;border-radius:22px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#000;font-weight:900;box-shadow:0 12px 35px rgba(156,53,255,0.4);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:10px}
+
+/* Recherche & Barre */
+.head{display:flex;justify-content:space-between;align-items:end;margin:25px 0 13px}
+.head h2{margin:0;font-size:25px;letter-spacing:0.5px}
+.head p{margin:5px 0 0;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.toolbar{display:flex;gap:8px;margin:14px 0;align-items:center}
+.search{position:relative;flex:1}
+.search svg{position:absolute;left:15px;top:15px;color:var(--muted)}
+.search input{width:100%;height:50px;padding:0 15px 0 45px;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:17px;font-size:14px}
+.filterBtn{height:50px;min-width:115px;border-radius:17px;background:rgba(255,255,255,0.05);border:1px solid var(--line);font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px}
+
+/* Grille Produits - Fixe et stable */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;width:100%}
+.card{padding:10px;border-radius:22px;position:relative;transition:.3s;cursor:pointer;display:flex;flex-direction:column;overflow:hidden;width:100%}
+.card:hover{border-color:var(--violet);box-shadow:0 0 20px rgba(156,53,255,0.25)}
+.thumb{width:100%;aspect-ratio:1/1;border-radius:15px;background:#030407;display:grid;place-items:center;overflow:hidden;margin-bottom:12px;position:relative;flex-shrink:0}
+.thumb img, .thumb video{width:100%;height:100%;object-fit:cover;transition:0.4s}
+.card:hover .thumb img, .card:hover .thumb video{transform:scale(1.08)}
+.vid-icon{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);padding:4px;border-radius:8px;color:#fff}
+.tag{display:inline-block;padding:5px 8px;border-radius:8px;background:rgba(0,0,0,0.4);border:1px solid var(--line);font-size:9px;letter-spacing:1px;text-transform:uppercase}
+.card h3{margin:8px 0 4px;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0.5px}
+.price{font-size:16px;font-weight:900;margin-top:auto;color:var(--cyan)}
+
+/* Panier */
+.panel{padding:22px;border-radius:27px;margin-top:18px}
+.cartList{display:grid;gap:12px}
+.row{display:grid;grid-template-columns:65px 1fr auto auto;gap:12px;align-items:center;padding:12px;border-radius:20px}
+.row img, .row video{width:65px;height:65px;border-radius:14px;object-fit:cover;background:#030407}
+.row h3{margin:0 0 4px;font-size:14px;letter-spacing:0.5px}
+.total{margin-top:20px;padding:22px;border-radius:20px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.06))}
+.total span{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.total b{font-size:28px;color:var(--cyan)}
+
+/* Boutons & Réseaux */
+.cta-wa{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff}
+.cta-tg{background:linear-gradient(135deg,#0088cc,#005580);color:#fff}
+.cta{width:100%;padding:18px;border-radius:18px;font-weight:900;text-align:center;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:10px;text-transform:uppercase;letter-spacing:1px;font-size:14px;transition:0.3s}
+.cta:active{transform:scale(0.97)}
+.social-btn{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid var(--line);text-decoration:none;color:#fff;font-weight:bold;transition:0.3s;letter-spacing:0.5px}
+.social-btn:hover{background:rgba(255,255,255,0.08);border-color:var(--violet)}
+.social-btn svg{color:var(--muted);transition:0.3s}
+.social-btn:hover svg{color:var(--cyan)}
+
+/* Page Profil */
+.profile-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 0}
+.avatar-lg{width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.05);border:2px solid var(--violet);padding:4px;margin-bottom:15px;position:relative;box-shadow:0 0 20px rgba(156,53,255,0.3)}
+.avatar-lg img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.prof-name{margin:0;font-size:22px;letter-spacing:1px}
+.prof-id{margin:5px 0 25px;font-size:13px;color:var(--muted);letter-spacing:2px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+.stat-box{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:20px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.stat-box svg{color:var(--violet)}
+.stat-box span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.stat-box b{font-size:15px;text-align:center}
+
+/* ADMIN PANEL */
+.admin-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--line);padding:14px;border-radius:15px;margin-bottom:10px;font-size:14px}
+.admin-list{margin-top:20px;display:grid;gap:10px}
+.admin-item{background:rgba(255,255,255,0.05);padding:15px;border-radius:15px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line)}
+.admin-item-actions{display:flex;gap:8px}
+.admin-btn{padding:10px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,0.08);transition:0.2s}
+.admin-btn:active{transform:scale(0.9)}
+
+/* Menu Bas */
+.bottom{position:fixed;z-index:50;bottom:15px;left:50%;transform:translateX(-50%);display:flex;gap:4px;padding:6px;border-radius:25px;width:95%;max-width:400px;justify-content:space-between;box-shadow:0 10px 30px rgba(156,53,255,0.25)}
+.nav{flex:1;height:52px;background:none;color:#8d98aa;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;gap:5px;text-transform:uppercase;letter-spacing:0.5px;transition:0.2s}
+.nav.on{background:rgba(156,53,255,0.2);color:#fff;border:1px solid var(--violet)}
+.cart{width:65px;height:65px;border-radius:50%;margin:-20px 5px 0;background:linear-gradient(145deg,var(--cyan),var(--violet));color:#05070b;box-shadow:0 0 0 6px var(--bg),0 12px 30px rgba(156,53,255,0.5);flex:none}
+
+/* Tiroirs & Modals */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);z-index:90;display:none;opacity:0;transition:0.3s}
+.overlay.open{display:flex;opacity:1;place-items:center;justify-content:center}
+.drawer{position:fixed;bottom:0;left:0;right:0;background:#0b0e14;border-top:1px solid var(--violet);border-radius:30px 30px 0 0;z-index:100;transform:translateY(100%);transition:0.4s cubic-bezier(0.2,0.8,0.2,1);padding:25px 20px 40px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(156,53,255,0.3);overflow-y:auto}
+.drawer.open{transform:translateY(0)}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-shrink:0}
+.drawer-header h3{margin:0;font-size:20px;letter-spacing:0.5px}
+.drawer-header button{background:rgba(255,255,255,0.1);border-radius:50%;width:35px;height:35px;display:grid;place-items:center}
+.cat-btn{padding:16px 20px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid var(--line);text-align:left;font-weight:600;font-size:15px;display:flex;justify-content:space-between;letter-spacing:0.5px;margin-bottom:12px}
+.cat-btn.active{background:var(--violet);color:#fff;border-color:var(--violet)}
+
+/* TERMINAL PIN PREMIUM */
+.pin-screen{text-align:center;padding:10px 0;width:100%;max-width:320px}
+.pin-dots{display:flex;justify-content:center;gap:15px;margin:25px 0 35px}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid var(--line);transition:0.2s}
+.pin-dot.filled{background:var(--violet);border-color:var(--violet);box-shadow:0 0 15px var(--violet)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;width:100%}
+.pin-key{aspect-ratio:1/1;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid var(--line);font-size:22px;font-weight:bold;display:grid;place-items:center;transition:0.2s;cursor:pointer}
+.pin-key:active{background:var(--violet);color:#fff;transform:scale(0.92);border-color:var(--violet)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.shake{animation:shake 0.3s ease-in-out}
+
+/* Carrousel Media */
+.media-carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-bottom:15px;border-radius:20px;border:1px solid var(--line);padding:4px;background:#030407;height:320px;width:100%;flex-shrink:0}
+.media-carousel::-webkit-scrollbar{display:none}
+.media-carousel .media-item{flex:0 0 100%;width:100%;height:100%;scroll-snap-align:start;border-radius:16px;object-fit:contain;background:#030407;cursor:zoom-in}
+
+/* Variants & Flex */
+.variants-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.variant-btn{padding:14px;border-radius:15px;border:1px solid var(--line);background:rgba(255,255,255,0.03);width:100%;text-align:center;font-size:14px;display:flex;flex-direction:column;gap:5px;transition:0.2s}
+.variant-btn span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.variant-btn b{font-size:16px}
+.variant-btn.active{border-color:var(--violet);background:rgba(156,53,255,0.15);color:#fff}
+.variant-btn.active span{color:var(--cyan)}
+.flex-row{display:flex;gap:10px;margin:15px 0 25px}
+.delivery-btn{padding:16px 10px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,0.03);flex:1;text-align:center;font-weight:bold;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;letter-spacing:0.5px;transition:0.2s}
+.delivery-btn svg{color:var(--muted);transition:0.2s}
+.delivery-btn.active{border-color:var(--violet);background:rgba(156,53,255,0.2);color:#fff}
+.delivery-btn.active svg{color:var(--cyan)}
+.section-title{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin:0 0 12px}
+
+/* Fullscreen Media Viewer */
+#fsModal{z-index:9999;flex-direction:column;background:rgba(0,0,0,0.95)}
+#fsImg, #fsVid{max-width:98%;max-height:88vh;object-fit:contain;border-radius:15px;box-shadow:0 20px 60px #000;display:none}
+
+@media(max-width:400px){
+ .row{grid-template-columns:55px 1fr auto;padding:12px}
+ .row .controls{grid-column:1 / -1;display:flex;justify-content:space-between;margin-top:12px;background:rgba(255,255,255,0.03);padding:6px;border-radius:14px}
+ .grid{gap:10px}
+}
+</style>
+</head>
+<body>
+
+<div id="toasts"></div>
+<div id="overlay" class="overlay" onclick="closeAllModals()"></div>
+
+<!-- Plein écran image/vidéo -->
+<div id="fsModal" class="overlay" onclick="closeFs()">
+    <button style="position:absolute;top:25px;right:25px;background:rgba(255,255,255,0.15);border-radius:50%;width:40px;height:40px;display:grid;place-items:center;color:#fff;backdrop-filter:blur(10px)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <img id="fsImg" src="">
+    <video id="fsVid" src="" controls autoplay loop playsinline></video>
+</div>
+
+<div class="app">
+
+<!-- HEADER -->
+<header class="top glass">
+    <div class="brand">
+        <img id="logoTop" src="https://raw.githubusercontent.com/miniappprem/image/refs/heads/main/IMG_9861.jpeg" alt="Logo" onerror="this.src='https://via.placeholder.com/150'">
+        <div>
+            <b>LÉZARD PLUG 94</b>
+            <small>Boutique Officielle</small>
+        </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="ico" onclick="vibe(); openPinDrawer()" aria-label="Admin">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+    </button>
+</header>
+
+<!-- ACCUEIL -->
+<section id="home" class="page on">
+    <div class="home-container">
+        <div class="hero-banner">
+            <img id="logoBanner" src="https://raw.githubusercontent.com/miniappprem/image/refs/heads/main/IMG_9861.jpeg" alt="Banner" onerror="this.src='https://via.placeholder.com/300'">
+        </div>
+        <button class="cta-big" onclick="page('shop')">
+            Accéder au catalogue
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+    </div>
+</section>
+
+<!-- BOUTIQUE -->
+<section id="shop" class="page">
+    <div class="head">
+        <div><h2>Catalogue</h2><p id="count"></p></div>
+    </div>
+    <div class="toolbar">
+        <div class="search">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 5 5"/></svg>
+            <input id="search" placeholder="Recherche un produit..." oninput="renderShop()">
+        </div>
+        <button class="filterBtn" onclick="vibe(); openFilters()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+            Filtres
+        </button>
+    </div>
+    <div id="products" class="grid"></div>
+</section>
+
+<!-- PANIER -->
+<section id="cart" class="page">
+    <div class="panel glass" style="padding:15px">
+        <h2 style="margin:5px 0 20px; text-align:center; font-size:22px; letter-spacing:0.5px">Panier</h2>
+        <div id="cartList" class="cartList"></div>
+        <div id="total"></div>
+        <p id="cartHint" class="muted" style="text-align:center; font-size:12px; margin-top:15px; display:none;">
+            Utilise les boutons ci-dessus ou le bouton bleu en bas pour finaliser.
+        </p>
+    </div>
+</section>
+
+<!-- RÉSEAUX -->
+<section id="socials" class="page">
+    <div class="panel glass">
+        <h2 style="margin:5px 0 10px; font-size:22px; letter-spacing:0.5px">Réseaux Sociaux</h2>
+        <p class="muted" style="margin-bottom:25px; font-size:14px">Rejoins nos différentes communautés.</p>
+        <div style="display:flex;flex-direction:column;gap:15px">
+            <a href="https://tato.im/lezarplug94" target="_blank" class="social-btn" onclick="vibe()">
+                <span style="display:flex;align-items:center;gap:15px">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--cyan)"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12" stroke="#000" stroke-width="2"/></svg>
+                    Canal Potato
+                </span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="https://t.me/+YvQm1g-ILEwxNjRk" target="_blank" class="social-btn" onclick="vibe()">
+                <span style="display:flex;align-items:center;gap:15px">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--cyan)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0l-3.8 2.39c-.56.36-1.11.53-1.63.51-.57-.02-1.67-.32-2.48-.59-.67-.22-1.2-.34-1.16-.72.02-.19.3-.39.84-.59 3.29-1.43 5.48-2.38 6.57-2.83 3.12-1.3 3.77-1.53 4.2-1.54.09 0 .31.02.43.14.1.1.13.25.14.36-.01.07-.01.16-.02.26z"/></svg>
+                    Canal Telegram
+                </span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- PROFIL -->
+<section id="profile" class="page">
+    <div class="panel glass">
+        <div class="profile-wrap">
+            <div class="avatar-lg">
+                <img id="tgAvatar" src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=200" alt="Avatar" onerror="this.src='https://via.placeholder.com/150'">
+            </div>
+            <h2 id="tgName" class="prof-name">Chargement...</h2>
+            <p id="tgId" class="prof-id">ID: ---------</p>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span>Statut</span>
+                    <b id="tgPremium">Standard</b>
+                </div>
+                <div class="stat-box">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>Ancienneté</span>
+                    <b id="tgAge">Calcul...</b>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PAGE ADMIN -->
+<section id="adminPage" class="page">
+    <div class="panel glass">
+        <h2 style="margin-top:0; letter-spacing:1px">Console Admin (Firebase)</h2>
+        <button class="cta" style="background:var(--violet);color:#fff" onclick="vibe(); openAdminForm()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nouveau Produit
+        </button>
+        <div id="adminFormContainer" style="display:none;margin-top:20px;padding:20px;background:#05070b;border-radius:20px;border:1px solid var(--violet)">
+            <h3 style="margin-top:0; color:var(--cyan)">Éditer / Ajouter un produit</h3>
+            <input type="hidden" id="aId">
+            <input class="admin-input" type="text" id="aTitle" placeholder="Titre (ex: White Truffle)">
+            <input class="admin-input" type="text" id="aOrigin" placeholder="Catégorie / Origine (ex: Double Static)">
+            <input class="admin-input" type="text" id="aTag" placeholder="Tag (ex: PREMIUM)">
+            <textarea class="admin-input" id="aMedia" placeholder="Lien(s) Image/Vidéo (séparés par virgules)" style="resize:vertical"></textarea>
+            
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">OU Importer une photo depuis la galerie :</label>
+            <input class="admin-input" type="file" id="aGallery" accept="image/*" onchange="handleGalleryUpload(event)">
+
+            <textarea class="admin-input" id="aVariants" placeholder="Grammages (ex: 10G:70, 25G:150)" style="resize:vertical"></textarea>
+            <div style="display:flex;gap:10px;margin-top:10px">
+                <button class="cta" style="flex:1;background:var(--cyan);color:#000;margin:0;padding:14px" onclick="saveProduct()">Sauver</button>
+                <button class="cta" style="flex:1;background:rgba(255,255,255,0.15);color:#fff;margin:0;padding:14px" onclick="closeAdminForm()">Annuler</button>
+            </div>
+        </div>
+        <div id="adminProductsList" class="admin-list"></div>
+    </div>
+</section>
+
+</div> <!-- End App -->
+
+<!-- MENU BAS -->
+<nav class="bottom glass">
+    <button class="nav on" data-p="home" onclick="page('home')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9M9 20v-6h6v6"/></svg>
+        Accueil
+    </button>
+    <button class="nav" data-p="shop" onclick="page('shop')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+        Boutique
+    </button>
+    <button class="nav cart" data-p="cart" onclick="page('cart')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span id="badge" class="badge">0</span>
+    </button>
+    <button class="nav" data-p="socials" onclick="page('socials')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Réseaux
+    </button>
+    <button class="nav" data-p="profile" onclick="page('profile')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profil
+    </button>
+</nav>
+
+<!-- DRAWER FILTRES -->
+<div id="filterDrawer" class="drawer">
+    <div class="drawer-header">
+        <h3>Catégories</h3>
+        <button onclick="closeAllModals()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+    </div>
+    <div id="catList"></div>
+</div>
+
+<!-- TIROIR PRODUIT -->
+<div id="productDrawer" class="drawer">
+    <div class="drawer-header">
+        <h3 style="font-size:16px; color:var(--muted); text-transform:uppercase; letter-spacing:1px">Détails produit</h3>
+        <button onclick="closeAllModals()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+    </div>
+    
+    <div id="pmMedia" class="media-carousel"></div>
+    
+    <span id="pmTag" class="tag"></span>
+    <h2 id="pmTitle" style="margin:12px 0 20px; font-size:22px; letter-spacing:0.5px"></h2>
+    <p class="section-title">Sélectionner la quantité</p>
+    <div id="pmVariants" class="variants-grid"></div>
+    <p class="section-title">Mode de réception</p>
+    <div class="flex-row">
+        <button id="btnLivraison" class="delivery-btn active" onclick="setDelivery('Livraison')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            Livraison
+        </button>
+        <button id="btnSurPlace" class="delivery-btn" onclick="setDelivery('Sur place')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            Sur place
+        </button>
+    </div>
+    <button class="cta" style="background:var(--cyan);color:#000" onclick="addToCartFromModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Ajouter au Panier
+    </button>
+</div>
+
+<!-- TIROIR ACCÈS ADMIN PREMIUM (PIN PAD) -->
+<div id="pinDrawer" class="drawer" style="align-items:center">
+    <div class="drawer-header" style="width:100%">
+        <h3 style="color:var(--violet);letter-spacing:1px">Coffre Sécurisé</h3>
+        <button onclick="closeAllModals()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+    </div>
+    
+    <div class="pin-screen" id="pinScreenBox">
+        <p class="muted" style="margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:1.5px">Code d'accès Admin</p>
+        <div class="pin-dots" id="pinDots">
+            <div class="pin-dot" data-i="0"></div>
+            <div class="pin-dot" data-i="1"></div>
+            <div class="pin-dot" data-i="2"></div>
+            <div class="pin-dot" data-i="3"></div>
+        </div>
+        <div class="pin-pad">
+            <button class="pin-key" onclick="pressPin('1')">1</button>
+            <button class="pin-key" onclick="pressPin('2')">2</button>
+            <button class="pin-key" onclick="pressPin('3')">3</button>
+            <button class="pin-key" onclick="pressPin('4')">4</button>
+            <button class="pin-key" onclick="pressPin('5')">5</button>
+            <button class="pin-key" onclick="pressPin('6')">6</button>
+            <button class="pin-key" onclick="pressPin('7')">7</button>
+            <button class="pin-key" onclick="pressPin('8')">8</button>
+            <button class="pin-key" onclick="pressPin('9')">9</button>
+            <button class="pin-key" style="border:0;background:none" disabled></button>
+            <button class="pin-key" onclick="pressPin('0')">0</button>
+            <button class="pin-key" style="border:0;background:none;color:var(--pink)" onclick="clearPin()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=400";
+const WHATSAPP_NUMBER = "33776411542";
+
+const defaultProducts = [
+    {id: "1", n: "White Truffle", o: "Double static", t: "70€", m: [FALLBACK_IMG], v: [{w: "10G", p: 70}]},
+    {id: "2", n: "Shokobon / Cookie", o: "Cookie", t: "60€", m: [FALLBACK_IMG], v: [{w: "10G", p: 60}]},
+    {id: "3", n: "La Moutain Del Cartel", o: "Cartel", t: "120u", m: [FALLBACK_IMG], v: [{w: "3x", p: 120}]},
+    {id: "4", n: "Lemone", o: "Lemon", t: "450€", m: [FALLBACK_IMG], v: [{w: "100G", p: 450}, {w: "50G", p: 250}, {w: "10G", p: 60}]},
+    {id: "5", n: "No Farm Dry", o: "No farm", t: "73u", m: [FALLBACK_IMG], v: [{w: "100G", p: 320}, {w: "50G", p: 180}, {w: "25G", p: 130}]},
+    {id: "6", n: "WPFF (Fresh Frozen)", o: "WPFF 🇺🇸", t: "1 JAR", m: [FALLBACK_IMG], v: [{w: "1G", p: 40}, {w: "2G", p: 80}, {w: "5G", p: 200}, {w: "10G", p: 380}]},
+    {id: "7", n: "Fantaz Frozen", o: "Premium", t: "NEW", m: [FALLBACK_IMG], v: [{w: "10G", p: 120}, {w: "25G", p: 250}, {w: "50G", p: 350}, {w: "100G", p: 580}]},
+    {id: "8", n: "Monster Calimousse", o: "France", t: "HOT", m: [FALLBACK_IMG], v: [{w: "10G", p: 50}, {w: "25G", p: 100}, {w: "50G", p: 150}, {w: "100G", p: 260}]},
+    {id: "9", n: "Mac 11", o: "USA", t: "TOP", m: [FALLBACK_IMG], v: [{w: "5G", p: 60}, {w: "10G", p: 100}, {w: "25G", p: 200}, {w: "50G", p: 340}, {w: "100G", p: 570}]},
+    {id: "10", n: "Gusher", o: "USA", t: "TOP", m: [FALLBACK_IMG], v: [{w: "5G", p: 60}, {w: "10G", p: 100}, {w: "25G", p: 200}, {w: "50G", p: 340}, {w: "100G", p: 570}]},
+    {id: "11", n: "Litchy Passion", o: "Maroc", t: "PREMIUM", m: [FALLBACK_IMG], v: [{w: "10G", p: 120}, {w: "25G", p: 240}, {w: "50G", p: 330}, {w: "100G", p: 580}]}
+];
+
+let products = [];
+let cart = JSON.parse(localStorage.getItem("lezard-cart")) || []; 
+let currentProduct = null;
+let selectedVariant = null;
+let selectedDelivery = "Livraison";
+let activeFilter = "";
+let orderSum = 0;
+let enteredPin = "";
+
+async function init() {
+    await loadProductsFromFirebase();
+    renderShop();
+    renderCart();
+    updateBadge();
+    initTelegramApp();
+}
+
+async function loadProductsFromFirebase() {
+    try {
+        const querySnapshot = await window.firebaseCollections.getDocs(window.firebaseCollections.collection(window.db, "products"));
+        if (!querySnapshot.empty) {
+            products = [];
+            querySnapshot.forEach((docSnap) => {
+                products.push({ id: docSnap.id, ...docSnap.data() });
+            });
+        } else {
+            products = defaultProducts;
+            for (let p of products) {
+                await window.firebaseCollections.setDoc(window.firebaseCollections.doc(window.db, "products", String(p.id)), p);
+            }
+        }
+    } catch(e) {
+        console.log("Erreur Firebase, utilisation du cache local:", e);
+        products = JSON.parse(localStorage.getItem("lezard-products")) || defaultProducts;
+    }
+}
+
+function isVideo(url) {
+    return url && (url.match(/\.(mp4|webm|ogg)$/i) || url.includes("video"));
+}
+
+function vibe(style = 'light') {
+    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(style);
+}
+
+function initTelegramApp() {
+    tg.ready();
+    tg.expand(); 
+    tg.MainButton.color = "#10eaff";
+    tg.MainButton.textColor = "#05070b";
+    
+    Telegram.WebApp.onEvent('mainButtonClicked', function() {
+        vibe('heavy');
+        tg.showPopup({
+            title: 'Validation de la commande',
+            message: 'Où veux-tu envoyer le résumé de ta commande ?',
+            buttons: [
+                {id: 'tg', type: 'default', text: 'Telegram'},
+                {id: 'wa', type: 'default', text: 'WhatsApp'},
+                {type: 'cancel'}
+            ]
+        }, function(btnId) {
+            if(btnId === 'wa') processOrder('wa');
+            if(btnId === 'tg') processOrder('tg');
+        });
+    });
+
+    let userName = "Visiteur";
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        let user = tg.initDataUnsafe.user;
+        userName = user.first_name;
+        if(user.last_name) userName += " " + user.last_name;
+        
+        document.getElementById("tgName").innerText = userName;
+        document.getElementById("tgId").innerText = "ID: " + user.id;
+        if(user.photo_url) document.getElementById("tgAvatar").src = user.photo_url;
+        if(user.is_premium) {
+            document.getElementById("tgPremium").innerText = "Premium";
+            document.getElementById("tgPremium").style.color = "var(--pink)";
+        }
+        let idStr = user.id.toString();
+        document.getElementById("tgAge").innerText = (idStr.length <= 8) ? "Très Ancien" : (idStr.length === 9 ? "Ancien" : "Récent");
+    }
+    
+    setTimeout(() => { showToast(`Bienvenue ${userName} !`); vibe('medium'); }, 500);
+}
+
+function page(id) {
+    vibe();
+    document.querySelectorAll(".page").forEach(x => x.classList.remove("on"));
+    document.getElementById(id).classList.add("on");
+    document.querySelectorAll(".nav").forEach(x => x.classList.toggle("on", x.dataset.p == id));
+    if(id == "shop") renderShop();
+    if(id == "cart") renderCart();
+    window.scrollTo(0,0);
+
+    if(id === "cart" && cart.length > 0) {
+        tg.MainButton.setText(`VALIDER LA COMMANDE (${orderSum}€)`);
+        tg.MainButton.show();
+    } else {
+        tg.MainButton.hide();
+    }
+}
+
+function showToast(msg) {
+    const tc = document.getElementById("toasts");
+    const t = document.createElement("div");
+    t.className = "toast";
+    t.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> ${msg}`;
+    tc.appendChild(t);
+    setTimeout(() => t.classList.add("show"), 10);
+    setTimeout(() => { t.classList.remove("show"); setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+function closeAllModals() {
+    vibe();
+    document.getElementById("overlay").classList.remove("open");
+    ["filterDrawer", "productDrawer", "pinDrawer", "fsModal"].forEach(id => {
+        if(document.getElementById(id)) document.getElementById(id).classList.remove("open");
+    });
+}
+
+function openFilters() {
+    document.getElementById("overlay").classList.add("open");
+    document.getElementById("filterDrawer").classList.add("open");
+    let origins = [...new Set(products.map(x=>x.o))].sort();
+    let html = `<button class="cat-btn ${activeFilter===''?'active':''}" onclick="applyFilter('')">Toutes les catégories</button>`;
+    origins.forEach(o => {
+        html += `<button class="cat-btn ${activeFilter===o?'active':''}" onclick="applyFilter('${o}')">${o}</button>`;
+    });
+    document.getElementById("catList").innerHTML = html;
+}
+function applyFilter(cat) { activeFilter = cat; closeAllModals(); renderShop(); }
+
+function renderShop() {
+    let q = document.getElementById('search').value.toLowerCase().trim();
+    let a = products.filter(x => (!q || (x.n+" "+x.o).toLowerCase().includes(q)) && (!activeFilter || x.o === activeFilter));
+    document.getElementById("products").innerHTML = a.length ? a.map(buildProductCard).join("") : `<div class="panel glass" style="grid-column:1/-1;text-align:center">Aucun produit.</div>`;
+    document.getElementById("count").textContent = `${a.length} PRODUITS`;
+}
+
+function buildProductCard(p) {
+    let minPrice = p.v && p.v.length > 0 ? Math.min(...p.v.map(v => v.p)) : 0;
+    let firstMedia = (p.m && p.m.length > 0 && p.m[0]) ? p.m[0] : FALLBACK_IMG;
+    let mediaHtml = isVideo(firstMedia) 
+        ? `<video src="${firstMedia}" autoplay loop muted playsinline></video><div class="vid-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>`
+        : `<img src="${firstMedia}" onerror="this.src='${FALLBACK_IMG}'">`;
+
+    return `<article class="card glass" onclick="openProduct('${p.id}')"><div class="thumb">${mediaHtml}</div><span class="tag">${p.t} · ${p.o}</span><h3>${p.n}</h3><div class="price">dès ${minPrice}€</div></article>`;
+}
+
+function openProduct(id) {
+    vibe();
+    currentProduct = products.find(x => String(x.id) === String(id));
+    if(!currentProduct) return;
+    selectedVariant = currentProduct.v[0];
+    selectedDelivery = "Livraison";
+    
+    document.getElementById("pmMedia").innerHTML = currentProduct.m.map(url => {
+        let cleanUrl = url ? url.trim() : FALLBACK_IMG;
+        if(isVideo(cleanUrl)) return `<video class="media-item" src="${cleanUrl}" autoplay loop muted playsinline onclick="openFs('${cleanUrl}', 'video')"></video>`;
+        return `<img class="media-item" src="${cleanUrl}" onerror="this.src='${FALLBACK_IMG}'" onclick="openFs('${cleanUrl}', 'img')">`;
+    }).join("");
+    
+    document.getElementById("pmTitle").innerText = currentProduct.n;
+    document.getElementById("pmTag").innerText = currentProduct.t + " · " + currentProduct.o;
+    renderVariants(); updateDeliveryUI();
+    document.getElementById("overlay").classList.add("open");
+    document.getElementById("productDrawer").classList.add("open");
+}
+
+function openFs(url, type) {
+    vibe('heavy');
+    document.getElementById("fsModal").style.display = "flex";
+    if(type === 'img') {
+        document.getElementById("fsVid").style.display = "none";
+        document.getElementById("fsVid").pause();
+        document.getElementById("fsImg").src = url;
+        document.getElementById("fsImg").style.display = "block";
+    } else {
+        document.getElementById("fsImg").style.display = "none";
+        document.getElementById("fsVid").src = url;
+        document.getElementById("fsVid").style.display = "block";
+        document.getElementById("fsVid").play();
+    }
+}
+function closeFs() {
+    vibe();
+    document.getElementById("fsModal").style.display = "none";
+    document.getElementById("fsVid").pause();
+}
+
+function renderVariants() {
+    document.getElementById("pmVariants").innerHTML = currentProduct.v.map((v, i) => `
+        <button class="variant-btn ${v === selectedVariant ? 'active' : ''}" onclick="vibe(); setVariant(${i})">
+            <span>${v.w}</span><b>${v.p}€</b>
+        </button>`).join("");
+}
+function setVariant(i) { selectedVariant = currentProduct.v[i]; renderVariants(); }
+function setDelivery(type) { vibe(); selectedDelivery = type; updateDeliveryUI(); }
+function updateDeliveryUI() {
+    document.getElementById('btnLivraison').classList.toggle('active', selectedDelivery === 'Livraison');
+    document.getElementById('btnSurPlace').classList.toggle('active', selectedDelivery === 'Sur place');
+}
+
+function addToCartFromModal() {
+    vibe('heavy');
+    let firstMedia = (currentProduct.m && currentProduct.m.length > 0) ? currentProduct.m[0] : FALLBACK_IMG;
+    let existing = cart.find(x => x.id === currentProduct.id && x.w === selectedVariant.w && x.delivery === selectedDelivery);
+    if(existing) existing.qty += 1;
+    else cart.push({ id: currentProduct.id, name: currentProduct.n, m: firstMedia, w: selectedVariant.w, p: selectedVariant.p, delivery: selectedDelivery, qty: 1 });
+    localStorage.setItem("lezard-cart", JSON.stringify(cart));
+    updateBadge(); closeAllModals(); showToast(`${currentProduct.n} ajouté`);
+}
+
+function updateBadge() { document.getElementById("badge").innerText = cart.reduce((s, i) => s + i.qty, 0); }
+function updateQty(index, delta) {
+    vibe();
+    cart[index].qty += delta;
+    if(cart[index].qty <= 0) cart.splice(index, 1);
+    localStorage.setItem("lezard-cart", JSON.stringify(cart));
+    renderCart(); updateBadge();
+}
+
+function renderCart() {
+    const list = document.getElementById("cartList");
+    const totDiv = document.getElementById("total");
+    const hint = document.getElementById("cartHint");
+    
+    if(!cart.length) {
+        list.innerHTML = `<p class="muted" style="text-align:center; padding:30px 0">Ton panier est vide.</p>`;
+        totDiv.innerHTML = ""; hint.style.display = "none";
+        if(document.getElementById("cart").classList.contains("on")) tg.MainButton.hide();
+        return;
+    }
+    
+    orderSum = 0;
+    list.innerHTML = cart.map((item, i) => {
+        orderSum += item.p * item.qty;
+        let mediaHtml = isVideo(item.m) ? `<video src="${item.m}" autoplay loop muted playsinline></video>` : `<img src="${item.m}" onerror="this.src='${FALLBACK_IMG}'">`;
+        return `
+        <div class="row glass">
+            ${mediaHtml}
+            <div>
+                <h3>${item.name}</h3>
+                <span class="muted" style="font-size:12px">${item.w} · ${item.delivery}</span>
+                <div style="color:var(--cyan); font-weight:bold; margin-top:4px">${item.p}€ / u</div>
+            </div>
+            <div class="controls">
+                <button class="ico" style="width:34px;height:34px" onclick="updateQty(${i}, -1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></button>
+                <b style="padding:0 12px; font-size:16px">${item.qty}</b>
+                <button class="ico" style="width:34px;height:34px" onclick="updateQty(${i}, 1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+            </div>
+        </div>`;
+    }).join("");
+    
+    totDiv.innerHTML = `
+        <div class="total"><span>Total Net</span><b>${orderSum}€</b></div>
+        <button class="cta cta-wa" onclick="processOrder('wa')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp
+        </button>
+        <button class="cta cta-tg" onclick="processOrder('tg')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0l-3.8 2.39c-.56.36-1.11.53-1.63.51-.57-.02-1.67-.32-2.48-.59-.67-.22-1.2-.34-1.16-.72.02-.19.3-.39.84-.59 3.29-1.43 5.48-2.38 6.57-2.83 3.12-1.3 3.77-1.53 4.2-1.54.09 0 .31.02.43.14.1.1.13.25.14.36-.01.07-.01.16-.02.26z"/></svg>
+            Telegram
+        </button>
+    `;
+    hint.style.display = "block";
+
+    if(document.getElementById("cart").classList.contains("on")) {
+        tg.MainButton.setText(`VALIDER LA COMMANDE (${orderSum}€)`);
+        tg.MainButton.show();
+    }
+}
+
+function processOrder(app) {
+    if(!cart.length) return;
+    let clientName = document.getElementById("tgName").innerText;
+    let clientId = document.getElementById("tgId").innerText;
+    
+    let txt = "• NOUVELLE COMMANDE LÉZARD PLUG 94 •\n\n";
+    txt += `👤 Client : ${clientName} (${clientId})\n`;
+    txt += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+    
+    cart.forEach(item => {
+        let t = item.p * item.qty;
+        txt += `- ${item.qty}x ${item.name} (${item.w}) | ${item.delivery} | ${t}€\n`;
+    });
+    
+    txt += `\n*TOTAL NET : ${orderSum}€*`;
+    txt = encodeURIComponent(txt);
+    
+    if(app === 'wa') window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${txt}`, '_blank');
+    if(app === 'tg') window.open(`https://t.me/lezardplug94?text=${txt}`, '_blank');
+}
+
+// --- SYSTÈME PIN PAD PREMIUM ---
+function openPinDrawer() {
+    enteredPin = "";
+    updatePinDots();
+    document.getElementById("overlay").classList.add("open");
+    document.getElementById("pinDrawer").classList.add("open");
+}
+
+function pressPin(num) {
+    vibe('medium');
+    if(enteredPin.length < 4) {
+        enteredPin += num;
+        updatePinDots();
+        if(enteredPin.length === 4) {
+            setTimeout(verifyPin, 200);
+        }
+    }
+}
+
+function clearPin() {
+    vibe('light');
+    enteredPin = "";
+    updatePinDots();
+}
+
+function updatePinDots() {
+    const dots = document.querySelectorAll(".pin-dot");
+    dots.forEach((dot, index) => {
+        dot.classList.toggle("filled", index < enteredPin.length);
+    });
+}
+
+function verifyPin() {
+    if(enteredPin === "9494") {
+        vibe('heavy');
+        showToast("Accès Administrateur autorisé 🔓");
+        closeAllModals();
+        page("adminPage");
+        renderAdminList();
+    } else {
+        vibe('heavy');
+        const box = document.getElementById("pinScreenBox");
+        box.classList.add("shake");
+        setTimeout(() => box.classList.remove("shake"), 300);
+        showToast("Code PIN erroné ❌");
+        enteredPin = "";
+        updatePinDots();
+    }
+}
+
+// --- ADMIN FORM & GALERIE ---
+function handleGalleryUpload(event) {
+    const file = event.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(uploadEvent) {
+        document.getElementById("aMedia").value = uploadEvent.target.result;
+        showToast("Photo chargée depuis la galerie !");
+    };
+    reader.readAsDataURL(file);
+}
+
+function renderAdminList() {
+    document.getElementById("adminProductsList").innerHTML = products.map(p => `
+        <div class="admin-item">
+            <div><b style="font-size:15px">${p.n}</b><br><small class="muted">${p.o} · ${p.t}</small></div>
+            <div class="admin-item-actions">
+                <button class="admin-btn" style="color:var(--cyan)" onclick="editProduct('${p.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                <button class="admin-btn" style="color:var(--pink)" onclick="delProduct('${p.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+            </div>
+        </div>
+    `).join("");
+}
+
+function openAdminForm() {
+    document.getElementById("adminFormContainer").style.display = "block";
+    document.getElementById("aId").value = ""; 
+    document.getElementById("aTitle").value = "";
+    document.getElementById("aOrigin").value = ""; 
+    document.getElementById("aTag").value = "PREMIUM";
+    document.getElementById("aMedia").value = ""; 
+    document.getElementById("aGallery").value = "";
+    document.getElementById("aVariants").value = "10G:70, 25G:150";
+}
+
+function closeAdminForm() { vibe(); document.getElementById("adminFormContainer").style.display = "none"; }
+
+function editProduct(id) {
+    vibe(); 
+    let p = products.find(x => String(x.id) === String(id)); 
+    if(!p) return;
+    openAdminForm(); 
+    document.getElementById("aId").value = p.id; 
+    document.getElementById("aTitle").value = p.n;
+    document.getElementById("aOrigin").value = p.o; 
+    document.getElementById("aTag").value = p.t;
+    document.getElementById("aMedia").value = (p.m || []).join(", "); 
+    document.getElementById("aVariants").value = p.v.map(v => `${v.w}:${v.p}`).join(", ");
+}
+
+async function saveProduct() {
+    vibe('heavy'); 
+    let id = document.getElementById("aId").value; 
+    let n = document.getElementById("aTitle").value;
+    let o = document.getElementById("aOrigin").value; 
+    let t = document.getElementById("aTag").value;
+    let mStr = document.getElementById("aMedia").value; 
+    let m = mStr ? mStr.split(',').map(url => url.trim()).filter(url => url.length > 0) : [FALLBACK_IMG];
+    if(m.length === 0) m = [FALLBACK_IMG];
+    
+    let vStr = document.getElementById("aVariants").value; 
+    let v = [];
+    try { 
+        vStr.split(',').forEach(pair => { 
+            let [w, p] = pair.split(':'); 
+            if(w && p) v.push({w: w.trim(), p: Number(p.trim())}); 
+        }); 
+        if(!v.length) throw "err"; 
+    } catch(e) { 
+        showToast("Erreur format grammages: 10G:70, 25G:150"); 
+        return; 
+    }
+    
+    if(!id) {
+        id = "p_" + Date.now();
+    }
+
+    let prodData = { id: String(id), n, o, t, m, v };
+
+    try {
+        await window.firebaseCollections.setDoc(window.firebaseCollections.doc(window.db, "products", String(id)), prodData);
+        let idx = products.findIndex(x => String(x.id) === String(id));
+        if(idx >= 0) products[idx] = prodData;
+        else products.unshift(prodData);
+
+        closeAdminForm(); 
+        renderAdminList(); 
+        renderShop(); 
+        showToast("Produit sauvegardé sur Firebase !");
+    } catch(e) {
+        showToast("Erreur sauvegarde Firebase");
+        console.error(e);
+    }
+}
+
+async function delProduct(id) {
+    vibe('heavy');
+    if(confirm("Supprimer ce produit ?")) {
+        try {
+            await window.firebaseCollections.deleteDoc(window.firebaseCollections.doc(window.db, "products", String(id)));
+            products = products.filter(x => String(x.id) !== String(id)); 
+            renderAdminList(); 
+            renderShop(); 
+            showToast("Produit supprimé de Firebase");
+        } catch(e) {
+            showToast("Erreur suppression");
+        }
+    }
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
