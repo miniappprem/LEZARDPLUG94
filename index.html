@@ -75,15 +75,15 @@ button{cursor:pointer;border:0}
 .filterBtn{height:50px;min-width:115px;border-radius:17px;background:rgba(255,255,255,0.05);border:1px solid var(--line);font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px}
 
 /* Grille Produits - Fixe et stable */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;width:100%}
-.card{padding:10px;border-radius:22px;position:relative;transition:.3s;cursor:pointer;display:flex;flex-direction:column;overflow:hidden;width:100%}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;width:100%;align-items:stretch}
+.card{padding:10px;border-radius:22px;position:relative;transition:.3s;cursor:pointer;display:flex;flex-direction:column;overflow:hidden;width:100%;height:100%}
 .card:hover{border-color:var(--violet);box-shadow:0 0 20px rgba(156,53,255,0.25)}
-.thumb{width:100%;aspect-ratio:1/1;border-radius:15px;background:#030407;display:grid;place-items:center;overflow:hidden;margin-bottom:12px;position:relative;flex-shrink:0}
-.thumb img, .thumb video{width:100%;height:100%;object-fit:cover;transition:0.4s}
+.thumb{width:100%;aspect-ratio:1/1;border-radius:15px;background:#030407;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px;position:relative;flex-shrink:0}
+.thumb img, .thumb video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:0.4s;display:block}
 .card:hover .thumb img, .card:hover .thumb video{transform:scale(1.08)}
-.vid-icon{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);padding:4px;border-radius:8px;color:#fff}
-.tag{display:inline-block;padding:5px 8px;border-radius:8px;background:rgba(0,0,0,0.4);border:1px solid var(--line);font-size:9px;letter-spacing:1px;text-transform:uppercase}
-.card h3{margin:8px 0 4px;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0.5px}
+.vid-icon{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);padding:4px;border-radius:8px;color:#fff;z-index:2}
+.tag{display:inline-block;padding:5px 8px;border-radius:8px;background:rgba(0,0,0,0.4);border:1px solid var(--line);font-size:9px;letter-spacing:1px;text-transform:uppercase;align-self:flex-start}
+.card h3{margin:8px 0 4px;font-size:14px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;letter-spacing:0.5px;line-height:1.3;word-break:break-word}
 .price{font-size:16px;font-weight:900;margin-top:auto;color:var(--cyan)}
 
 /* Panier */
@@ -157,7 +157,7 @@ button{cursor:pointer;border:0}
 /* Carrousel Media */
 .media-carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-bottom:15px;border-radius:20px;border:1px solid var(--line);padding:4px;background:#030407;height:320px;width:100%;flex-shrink:0}
 .media-carousel::-webkit-scrollbar{display:none}
-.media-carousel .media-item{flex:0 0 100%;width:100%;height:100%;scroll-snap-align:start;border-radius:16px;object-fit:contain;background:#030407;cursor:zoom-in}
+.media-carousel .media-item{flex:0 0 100%;width:100%;height:100%;scroll-snap-align:start;border-radius:16px;object-fit:contain;background:#030407}
 
 /* Variants & Flex */
 .variants-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
@@ -173,9 +173,10 @@ button{cursor:pointer;border:0}
 .delivery-btn.active svg{color:var(--cyan)}
 .section-title{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin:0 0 12px}
 
-/* Fullscreen Media Viewer */
-#fsModal{z-index:9999;flex-direction:column;background:rgba(0,0,0,0.95)}
-#fsImg, #fsVid{max-width:98%;max-height:88vh;object-fit:contain;border-radius:15px;box-shadow:0 20px 60px #000;display:none}
+/* Fullscreen Media Viewer + Zoom */
+#fsModal{z-index:9999; display:none; background:rgba(0,0,0,0.95); position:fixed; inset:0;}
+#zoomWrap { width:100%; height:100%; overflow:auto; display:flex; align-items:center; justify-content:center; }
+#fsImg { display:block; margin:auto; max-width:98%; max-height:88vh; object-fit:contain; border-radius:15px; box-shadow:0 20px 60px #000; transition:all 0.3s ease; cursor:zoom-in; }
 
 @media(max-width:400px){
  .row{grid-template-columns:55px 1fr auto;padding:12px}
@@ -189,13 +190,14 @@ button{cursor:pointer;border:0}
 <div id="toasts"></div>
 <div id="overlay" class="overlay" onclick="closeAllModals()"></div>
 
-<!-- Plein écran image/vidéo -->
-<div id="fsModal" class="overlay" onclick="closeFs()">
-    <button style="position:absolute;top:25px;right:25px;background:rgba(255,255,255,0.15);border-radius:50%;width:40px;height:40px;display:grid;place-items:center;color:#fff;backdrop-filter:blur(10px)">
+<!-- Plein écran image avec zoom -->
+<div id="fsModal" onclick="closeFs()">
+    <button style="position:absolute;top:25px;right:25px;background:rgba(255,255,255,0.15);border-radius:50%;width:40px;height:40px;display:grid;place-items:center;color:#fff;backdrop-filter:blur(10px);z-index:100" onclick="closeFs()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
-    <img id="fsImg" src="">
-    <video id="fsVid" src="" controls autoplay loop playsinline></video>
+    <div id="zoomWrap">
+        <img id="fsImg" src="" onclick="toggleZoom(event)">
+    </div>
 </div>
 
 <div class="app">
@@ -468,6 +470,7 @@ let selectedDelivery = "Livraison";
 let activeFilter = "";
 let orderSum = 0;
 let enteredPin = "";
+let isZoomed = false; // Etat du zoom pour les images
 
 async function init() {
     await loadProductsFromFirebase();
@@ -577,7 +580,7 @@ function showToast(msg) {
 function closeAllModals() {
     vibe();
     document.getElementById("overlay").classList.remove("open");
-    ["filterDrawer", "productDrawer", "pinDrawer", "fsModal"].forEach(id => {
+    ["filterDrawer", "productDrawer", "pinDrawer"].forEach(id => {
         if(document.getElementById(id)) document.getElementById(id).classList.remove("open");
     });
 }
@@ -620,8 +623,9 @@ function openProduct(id) {
     
     document.getElementById("pmMedia").innerHTML = currentProduct.m.map(url => {
         let cleanUrl = url ? url.trim() : FALLBACK_IMG;
-        if(isVideo(cleanUrl)) return `<video class="media-item" src="${cleanUrl}" autoplay loop muted playsinline onclick="openFs('${cleanUrl}', 'video')"></video>`;
-        return `<img class="media-item" src="${cleanUrl}" onerror="this.src='${FALLBACK_IMG}'" onclick="openFs('${cleanUrl}', 'img')">`;
+        /* Les vidéos ont maintenant des contrôles (play/pause) et ne déclenchent plus le plein écran */
+        if(isVideo(cleanUrl)) return `<video class="media-item" src="${cleanUrl}" controls muted playsinline></video>`;
+        return `<img class="media-item" src="${cleanUrl}" onerror="this.src='${FALLBACK_IMG}'" onclick="openFs('${cleanUrl}')" style="cursor:zoom-in">`;
     }).join("");
     
     document.getElementById("pmTitle").innerText = currentProduct.n;
@@ -631,25 +635,44 @@ function openProduct(id) {
     document.getElementById("productDrawer").classList.add("open");
 }
 
-function openFs(url, type) {
+/* OUVERTURE IMAGE + GESTION ZOOM */
+function openFs(url) {
     vibe('heavy');
-    document.getElementById("fsModal").style.display = "flex";
-    if(type === 'img') {
-        document.getElementById("fsVid").style.display = "none";
-        document.getElementById("fsVid").pause();
-        document.getElementById("fsImg").src = url;
-        document.getElementById("fsImg").style.display = "block";
-    } else {
-        document.getElementById("fsImg").style.display = "none";
-        document.getElementById("fsVid").src = url;
-        document.getElementById("fsVid").style.display = "block";
-        document.getElementById("fsVid").play();
-    }
+    document.getElementById("fsModal").style.display = "block";
+    document.getElementById("fsImg").src = url;
+    
+    // Reset du zoom à chaque nouvelle ouverture
+    isZoomed = true;
+    toggleZoom({stopPropagation: () => {}}); 
 }
+
 function closeFs() {
     vibe();
     document.getElementById("fsModal").style.display = "none";
-    document.getElementById("fsVid").pause();
+}
+
+function toggleZoom(e) {
+    e.stopPropagation();
+    vibe();
+    const wrap = document.getElementById("zoomWrap");
+    const img = document.getElementById("fsImg");
+    isZoomed = !isZoomed;
+    
+    if (isZoomed) {
+        wrap.style.display = "block"; // Active le défilement normal sans bloquer le haut/gauche
+        img.style.maxHeight = "none";
+        img.style.maxWidth = "none";
+        img.style.width = "250%"; // Zoom factor x2.5
+        img.style.marginTop = "60px"; // Laisse la place à la croix pour fermer
+        img.style.cursor = "zoom-out";
+    } else {
+        wrap.style.display = "flex";
+        img.style.maxHeight = "88vh";
+        img.style.maxWidth = "98%";
+        img.style.width = "auto";
+        img.style.marginTop = "0";
+        img.style.cursor = "zoom-in";
+    }
 }
 
 function renderVariants() {
