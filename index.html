@@ -30,10 +30,13 @@
 <style>
 :root{--bg:#05070b;--glass:rgba(255,255,255,0.06);--line:rgba(156,53,255,0.25);--text:#f7f9ff;--muted:#9ba7b8;--cyan:#10eaff;--violet:#9c35ff;--pink:#ff36d7;--green:#52ff83}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:radial-gradient(circle at 15% 5%,rgba(0,234,255,0.12),transparent 28%),radial-gradient(circle at 85% 15%,rgba(156,53,255,0.2),transparent 30%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;overscroll-behavior:none}
+
+/* CORRECTION DU SCROLL HORIZONTAL */
+body{margin:0;width:100%;overflow-x:hidden;background:radial-gradient(circle at 15% 5%,rgba(0,234,255,0.12),transparent 28%),radial-gradient(circle at 85% 15%,rgba(156,53,255,0.2),transparent 30%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;overscroll-behavior:none}
+.app{max-width:800px;width:100%;overflow-x:hidden;margin:auto;padding:14px 14px 110px}
+
 button,input,textarea{font:inherit;color:inherit;outline:none}
 button{cursor:pointer;border:0}
-.app{max-width:800px;margin:auto;padding:14px 14px 110px}
 
 /* Notifications */
 #toasts{position:fixed;top:15px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
@@ -74,7 +77,7 @@ button{cursor:pointer;border:0}
 .search input{width:100%;height:50px;padding:0 15px 0 45px;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:17px;font-size:14px}
 .filterBtn{height:50px;min-width:115px;border-radius:17px;background:rgba(255,255,255,0.05);border:1px solid var(--line);font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px}
 
-/* Grille Produits - Fixe et stable */
+/* Grille Produits */
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;width:100%;align-items:stretch}
 .card{padding:10px;border-radius:22px;position:relative;transition:.3s;cursor:pointer;display:flex;flex-direction:column;overflow:hidden;width:100%;height:100%}
 .card:hover{border-color:var(--violet);box-shadow:0 0 20px rgba(156,53,255,0.25)}
@@ -325,8 +328,9 @@ button{cursor:pointer;border:0}
             <input class="admin-input" type="text" id="aTag" placeholder="Tag (ex: PREMIUM)">
             <textarea class="admin-input" id="aMedia" placeholder="Lien(s) Image/Vidéo (séparés par virgules)" style="resize:vertical"></textarea>
             
-            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">OU Importer une photo depuis la galerie :</label>
-            <input class="admin-input" type="file" id="aGallery" accept="image/*" onchange="handleGalleryUpload(event)">
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">OU Importer une photo/vidéo depuis la galerie :</label>
+            <!-- ACCEPTATION IMAGES ET VIDEOS -->
+            <input class="admin-input" type="file" id="aGallery" accept="image/*, video/*" onchange="handleGalleryUpload(event)">
 
             <textarea class="admin-input" id="aVariants" placeholder="Grammages (ex: 10G:70, 25G:150)" style="resize:vertical"></textarea>
             <div style="display:flex;gap:10px;margin-top:10px">
@@ -447,18 +451,18 @@ button{cursor:pointer;border:0}
 const tg = window.Telegram.WebApp;
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=400";
 const WHATSAPP_NUMBER = "33776411542";
+const TARGET_IMAGE = "https://raw.githubusercontent.com/miniappprem/image/08cabb7eaba90cf003a00b6163b2287b2ead25ef/IMG_0273.jpeg";
 
 const defaultProducts = [
     {id: "1", n: "White Truffle", o: "Double static", t: "70€", m: [FALLBACK_IMG], v: [{w: "10G", p: 70}]},
     {id: "2", n: "Shokobon / Cookie", o: "Cookie", t: "60€", m: [FALLBACK_IMG], v: [{w: "10G", p: 60}]},
     {id: "3", n: "La Moutain Del Cartel", o: "Cartel", t: "120u", m: [FALLBACK_IMG], v: [{w: "3x", p: 120}]},
-    {id: "4", n: "Lemone", o: "Lemon", t: "450€", m: [FALLBACK_IMG], v: [{w: "100G", p: 450}, {w: "50G", p: 250}, {w: "10G", p: 60}]},
     {id: "5", n: "No Farm Dry", o: "No farm", t: "73u", m: [FALLBACK_IMG], v: [{w: "100G", p: 320}, {w: "50G", p: 180}, {w: "25G", p: 130}]},
     {id: "6", n: "WPFF (Fresh Frozen)", o: "WPFF 🇺🇸", t: "1 JAR", m: [FALLBACK_IMG], v: [{w: "1G", p: 40}, {w: "2G", p: 80}, {w: "5G", p: 200}, {w: "10G", p: 380}]},
     {id: "7", n: "Fantaz Frozen", o: "Premium", t: "NEW", m: [FALLBACK_IMG], v: [{w: "10G", p: 120}, {w: "25G", p: 250}, {w: "50G", p: 350}, {w: "100G", p: 580}]},
     {id: "8", n: "Monster Calimousse", o: "France", t: "HOT", m: [FALLBACK_IMG], v: [{w: "10G", p: 50}, {w: "25G", p: 100}, {w: "50G", p: 150}, {w: "100G", p: 260}]},
-    {id: "9", n: "Mac 11", o: "USA", t: "TOP", m: [FALLBACK_IMG], v: [{w: "5G", p: 60}, {w: "10G", p: 100}, {w: "25G", p: 200}, {w: "50G", p: 340}, {w: "100G", p: 570}]},
-    {id: "10", n: "Gusher", o: "USA", t: "TOP", m: [FALLBACK_IMG], v: [{w: "5G", p: 60}, {w: "10G", p: 100}, {w: "25G", p: 200}, {w: "50G", p: 340}, {w: "100G", p: 570}]},
+    {id: "9", n: "Mac 11", o: "USA", t: "TOP", m: [TARGET_IMAGE], v: [{w: "5G", p: 60}, {w: "10G", p: 100}, {w: "25G", p: 200}, {w: "50G", p: 340}, {w: "100G", p: 570}]},
+    {id: "10", n: "Gusher", o: "USA", t: "TOP", m: [TARGET_IMAGE], v: [{w: "5G", p: 60}, {w: "10G", p: 100}, {w: "25G", p: 200}, {w: "50G", p: 340}, {w: "100G", p: 570}]},
     {id: "11", n: "Litchy Passion", o: "Maroc", t: "PREMIUM", m: [FALLBACK_IMG], v: [{w: "10G", p: 120}, {w: "25G", p: 240}, {w: "50G", p: 330}, {w: "100G", p: 580}]}
 ];
 
@@ -470,7 +474,7 @@ let selectedDelivery = "Livraison";
 let activeFilter = "";
 let orderSum = 0;
 let enteredPin = "";
-let isZoomed = false; // Etat du zoom pour les images
+let isZoomed = false;
 
 async function init() {
     await loadProductsFromFirebase();
@@ -485,9 +489,24 @@ async function loadProductsFromFirebase() {
         const querySnapshot = await window.firebaseCollections.getDocs(window.firebaseCollections.collection(window.db, "products"));
         if (!querySnapshot.empty) {
             products = [];
+            let foundLemoneId = null;
+            
             querySnapshot.forEach((docSnap) => {
-                products.push({ id: docSnap.id, ...docSnap.data() });
+                let data = docSnap.data();
+                if (data.n && data.n.toLowerCase().includes("lemone")) {
+                    foundLemoneId = docSnap.id;
+                } else {
+                    // Forcer l'image sur Mac 11 et Gusher si enregistrés dans Firebase avec une ancienne image
+                    if (data.n && (data.n.toLowerCase().includes("mac 11") || data.n.toLowerCase().includes("gusher"))) {
+                        data.m = [TARGET_IMAGE];
+                    }
+                    products.push({ id: docSnap.id, ...data });
+                }
             });
+            
+            if (foundLemoneId) {
+                await window.firebaseCollections.deleteDoc(window.firebaseCollections.doc(window.db, "products", foundLemoneId));
+            }
         } else {
             products = defaultProducts;
             for (let p of products) {
@@ -496,12 +515,14 @@ async function loadProductsFromFirebase() {
         }
     } catch(e) {
         console.log("Erreur Firebase, utilisation du cache local:", e);
-        products = JSON.parse(localStorage.getItem("lezard-products")) || defaultProducts;
+        products = (JSON.parse(localStorage.getItem("lezard-products")) || defaultProducts).filter(x => !x.n.toLowerCase().includes("lemone"));
     }
 }
 
 function isVideo(url) {
-    return url && (url.match(/\.(mp4|webm|ogg)$/i) || url.includes("video"));
+    if (!url) return false;
+    let u = url.toLowerCase();
+    return u.match(/\.(mp4|webm|ogg|mov|mkv|avi)$/) || u.includes("video") || u.startsWith("data:video") || u.includes("alt=media");
 }
 
 function vibe(style = 'light') {
@@ -608,7 +629,7 @@ function buildProductCard(p) {
     let minPrice = p.v && p.v.length > 0 ? Math.min(...p.v.map(v => v.p)) : 0;
     let firstMedia = (p.m && p.m.length > 0 && p.m[0]) ? p.m[0] : FALLBACK_IMG;
     let mediaHtml = isVideo(firstMedia) 
-        ? `<video src="${firstMedia}" autoplay loop muted playsinline></video><div class="vid-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>`
+        ? `<video src="${firstMedia}" autoplay loop muted playsinline webkit-playsinline disablePictureInPicture></video><div class="vid-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>`
         : `<img src="${firstMedia}" onerror="this.src='${FALLBACK_IMG}'">`;
 
     return `<article class="card glass" onclick="openProduct('${p.id}')"><div class="thumb">${mediaHtml}</div><span class="tag">${p.t} · ${p.o}</span><h3>${p.n}</h3><div class="price">dès ${minPrice}€</div></article>`;
@@ -621,12 +642,23 @@ function openProduct(id) {
     selectedVariant = currentProduct.v[0];
     selectedDelivery = "Livraison";
     
-    document.getElementById("pmMedia").innerHTML = currentProduct.m.map(url => {
+    let mediaContainer = document.getElementById("pmMedia");
+    mediaContainer.innerHTML = currentProduct.m.map(url => {
         let cleanUrl = url ? url.trim() : FALLBACK_IMG;
-        /* Les vidéos ont maintenant des contrôles (play/pause) et ne déclenchent plus le plein écran */
-        if(isVideo(cleanUrl)) return `<video class="media-item" src="${cleanUrl}" controls muted playsinline></video>`;
+        
+        if(isVideo(cleanUrl)) {
+            return `<video class="media-item" src="${cleanUrl}" autoplay loop muted controls playsinline webkit-playsinline disablePictureInPicture preload="auto"></video>`;
+        }
+        
         return `<img class="media-item" src="${cleanUrl}" onerror="this.src='${FALLBACK_IMG}'" onclick="openFs('${cleanUrl}')" style="cursor:zoom-in">`;
     }).join("");
+    
+    setTimeout(() => {
+        mediaContainer.querySelectorAll('video').forEach(vid => {
+            vid.load();
+            vid.play().catch(e => console.log("Autoplay géré:", e));
+        });
+    }, 50);
     
     document.getElementById("pmTitle").innerText = currentProduct.n;
     document.getElementById("pmTag").innerText = currentProduct.t + " · " + currentProduct.o;
@@ -641,7 +673,6 @@ function openFs(url) {
     document.getElementById("fsModal").style.display = "block";
     document.getElementById("fsImg").src = url;
     
-    // Reset du zoom à chaque nouvelle ouverture
     isZoomed = true;
     toggleZoom({stopPropagation: () => {}}); 
 }
@@ -659,11 +690,11 @@ function toggleZoom(e) {
     isZoomed = !isZoomed;
     
     if (isZoomed) {
-        wrap.style.display = "block"; // Active le défilement normal sans bloquer le haut/gauche
+        wrap.style.display = "block";
         img.style.maxHeight = "none";
         img.style.maxWidth = "none";
-        img.style.width = "250%"; // Zoom factor x2.5
-        img.style.marginTop = "60px"; // Laisse la place à la croix pour fermer
+        img.style.width = "250%";
+        img.style.marginTop = "60px";
         img.style.cursor = "zoom-out";
     } else {
         wrap.style.display = "flex";
@@ -722,7 +753,7 @@ function renderCart() {
     orderSum = 0;
     list.innerHTML = cart.map((item, i) => {
         orderSum += item.p * item.qty;
-        let mediaHtml = isVideo(item.m) ? `<video src="${item.m}" autoplay loop muted playsinline></video>` : `<img src="${item.m}" onerror="this.src='${FALLBACK_IMG}'">`;
+        let mediaHtml = isVideo(item.m) ? `<video src="${item.m}" autoplay loop muted playsinline webkit-playsinline disablePictureInPicture></video>` : `<img src="${item.m}" onerror="this.src='${FALLBACK_IMG}'">`;
         return `
         <div class="row glass">
             ${mediaHtml}
@@ -829,16 +860,46 @@ function verifyPin() {
     }
 }
 
-// --- ADMIN FORM & GALERIE ---
-function handleGalleryUpload(event) {
+// --- ADMIN FORM & GALERIE (AVEC COMPRESSION IMAGE INTEGREE) ---
+async function handleGalleryUpload(event) {
     const file = event.target.files[0];
     if(!file) return;
-    const reader = new FileReader();
-    reader.onload = function(uploadEvent) {
-        document.getElementById("aMedia").value = uploadEvent.target.result;
-        showToast("Photo chargée depuis la galerie !");
-    };
-    reader.readAsDataURL(file);
+
+    if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800;
+                let scaleSize = 1;
+                if (img.width > MAX_WIDTH) {
+                    scaleSize = MAX_WIDTH / img.width;
+                }
+                canvas.width = img.width * scaleSize;
+                canvas.height = img.height * scaleSize;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                document.getElementById("aMedia").value = compressedBase64;
+                showToast("Photo compressée avec succès !");
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    } 
+    else if (file.type.startsWith('video/')) {
+        if(file.size > 1048576) {
+            showToast("ATTENTION : La vidéo dépasse 1 Mo, Firebase risque de bloquer la sauvegarde.");
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById("aMedia").value = e.target.result;
+            showToast("Vidéo sélectionnée");
+        };
+        reader.readAsDataURL(file);
+    }
 }
 
 function renderAdminList() {
@@ -846,8 +907,8 @@ function renderAdminList() {
         <div class="admin-item">
             <div><b style="font-size:15px">${p.n}</b><br><small class="muted">${p.o} · ${p.t}</small></div>
             <div class="admin-item-actions">
-                <button class="admin-btn" style="color:var(--cyan)" onclick="editProduct('${p.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                <button class="admin-btn" style="color:var(--pink)" onclick="delProduct('${p.id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                <button class="admin-btn" style="color:var(--cyan)" onclick="editProduct('${String(p.id)}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                <button class="admin-btn" style="color:var(--pink)" onclick="delProduct('${String(p.id)}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
             </div>
         </div>
     `).join("");
@@ -928,13 +989,15 @@ async function delProduct(id) {
     vibe('heavy');
     if(confirm("Supprimer ce produit ?")) {
         try {
-            await window.firebaseCollections.deleteDoc(window.firebaseCollections.doc(window.db, "products", String(id)));
-            products = products.filter(x => String(x.id) !== String(id)); 
+            const strId = String(id);
+            await window.firebaseCollections.deleteDoc(window.firebaseCollections.doc(window.db, "products", strId));
+            products = products.filter(x => String(x.id) !== strId); 
             renderAdminList(); 
             renderShop(); 
             showToast("Produit supprimé de Firebase");
         } catch(e) {
             showToast("Erreur suppression");
+            console.error(e);
         }
     }
 }
